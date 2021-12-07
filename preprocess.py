@@ -18,7 +18,7 @@ def preprocess(filepath):
                 away_data = [row.PTS_away,row.FG_PCT_away,row.FT_PCT_away,row.FG3_PCT_away,row.AST_away, row.REB_away]
             if not math.isnan(home_data[0]):
                 years_dict[row.SEASON][row.GAME_ID] = [row.HOME_TEAM_WINS, home_data, away_data]
-                print(years_dict[row.SEASON][row.GAME_ID])
+                #print(years_dict[row.SEASON][row.GAME_ID])
                 i+=1
         else: #start the season with the first game data
             home_data = [row.PTS_home,row.FG_PCT_home,row.FT_PCT_home,row.FG3_PCT_home,row.AST_home, row.REB_home]
@@ -29,4 +29,6 @@ def preprocess(filepath):
             i=1
     return years_dict
 
-preprocess("/Users/williamallstetter/Desktop/school/CS1470/final project/archive/games.csv")
+#preprocess("/Users/williamallstetter/Desktop/school/CS1470/final project/archive/games.csv")
+years_dict = preprocess("C:/Users/vycha/Downloads/archive/games.csv")
+print(years_dict)
