@@ -46,7 +46,7 @@ def test(model, test_inputs, test_labels):
 def main():
     
     # TO-DO:  Separate your train and test data into inputs and labels
-    years_dict = preprocess("archive/games.csv")
+    years_list = preprocess.preprocess("archive/games.csv")
 
     # TODO: initialize model
     model = Model()
