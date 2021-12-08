@@ -1,5 +1,6 @@
 import pandas
 import math
+import numpy as np
 
 def preprocess(filepath):
     years_dict = {}
@@ -38,4 +39,66 @@ def preprocess(filepath):
         returnArr.append(season_data)
     return season_data
     
-preprocess("archive/games.csv")
+#season_data = preprocess("archive/games.csv")
+# for line in season_data:
+#     print(line)
+
+def preprocess_odds(filepath):
+    odds_data = pandas.read_excel(filepath)
+    odds_data = odds_data.replace('pk', 0)
+    #odds_data = convert_to_team_id(odds_data)
+    labels_dict = {}
+    for i, g in odds_data.groupby(odds_data.index // 2):
+        away_team_id = g.iloc[0, 3]
+        home_team_id = g.iloc[1, 3]
+        away_score = int(g.iloc[0, 8])
+        home_score = int(g.iloc[1, 8])
+        total_score = away_score + home_score
+        over_under = max(float(g.iloc[0, 9]), float(g.iloc[1, 9]))
+        if (over_under < 25 and over_under > 16):
+            over_under *= 10
+        assert over_under > 100
+        label = None
+        if (total_score < over_under):
+            label = 0
+        elif (total_score > over_under):
+            label = 1
+        elif (total_score == over_under):
+            label = 0.5
+        labels_dict[(away_team_id, home_team_id, away_score, home_score)] = label
+    return labels_dict
+
+def convert_to_team_id(data):
+    data = data.replace("Atlanta", 1610612737)
+    data = data.replace("Boston", 1610612738)
+    data = data.replace("GoldenState", 1610612739)
+    data = data.replace("NewOrleans", 1610612740)
+    data = data.replace("Chicago", 1610612741)
+    data = data.replace("Dallas", 1610612742)
+    data = data.replace("Denver", 1610612743)
+    data = data.replace("Cleveland", 1610612744)
+    data = data.replace("Houston", 1610612745)
+    data = data.replace("LAClippers", 1610612746)
+    data = data.replace("LALakers", 1610612747)
+    data = data.replace("Miami", 1610612748)
+    data = data.replace("Milwaukee", 1610612749)
+    data = data.replace("Minnesota", 1610612750)
+    data = data.replace("Brooklyn", 1610612751)
+    data = data.replace("NewYork", 1610612752)
+    data = data.replace("Orlando", 1610612753)
+    data = data.replace("Indiana", 1610612754)
+    data = data.replace("Philadelphia", 1610612755)
+    data = data.replace("Phoenix", 1610612756)
+    data = data.replace("Portland", 1610612757)
+    data = data.replace("Sacramento", 1610612758)
+    data = data.replace("San Antonio", 1610612759)
+    data = data.replace("OklahomaCity", 1610612760)
+    data = data.replace("Toronto", 1610612761)
+    data = data.replace("Utah", 1610612762)
+    data = data.replace("Memphis", 1610612763)
+    data = data.replace("Washington", 1610612764)
+    data = data.replace("Detroit", 1610612765)
+    data = data.replace("Charlotte", 1610612766)
+    return data
+
+preprocess_odds("archive/nba_odds_2020_2021.xlsx")
