@@ -17,8 +17,9 @@ class Model(tf.keras.Model):
 
     def call(self, inputs):
         whole_sequence_output, final_memory_state, final_carry_state = self.lstm(inputs)
-        probs = self.feed_forward(whole_sequence_output)
-        return probs, (final_memory_state, final_carry_state)
+        probs_1 = self.feed_forward_1(whole_sequence_output)
+        probs_2 = self.feed_forward_2(probs_1)
+        return probs_2, (final_memory_state, final_carry_state)
 
     def loss(self, probs, labels):
         return tf.reduce_mean(tf.keras.losses.binary_crossentropy(labels, probs))
@@ -30,10 +31,16 @@ class Model(tf.keras.Model):
 def train(model, train_inputs, train_labels):   
     for i in range(0, len(train_inputs)):
         print("Training Batch: ", i)
-        game_input = train_inputs[i]
-        game_result = train_labels[i]
+        game_data = train_inputs[i]
+        # print(game_data)
+        game_input = np.array(game_data[4] + game_data[5])
+        if i == 1:
+            print(game_input)
+        game_input = np.reshape(game_input, (1, len(game_input), 1))
+        game_result = train_labels[(game_data[3], game_data[2], game_data[0])]
         with tf.GradientTape() as tape:
-            results = model(game_input, None)
+            #print(game_input)
+            results = model(game_input)
             loss = model.loss(results[0], game_result)
             #print(loss)
         gradients = tape.gradient(loss, model.trainable_variables)
@@ -54,8 +61,8 @@ def main():
     odds_2018_dict = preprocess.preprocess_odds("archive/nba odds 2018-19.xlsx")
     odds_2017_dict = preprocess.preprocess_odds("archive/nba odds 2017-18.xlsx")
     odds_2016_dict = preprocess.preprocess_odds("archive/nba odds 2016-17.xlsx")
-    train_y = odds_2019_dict | odds_2018_dict | odds_2017_dict | odds_2016_dict
-    test_y = odds_2021_dict  | odds_2020_dict
+    train_y = {**odds_2019_dict, **odds_2018_dict, **odds_2017_dict, **odds_2016_dict}
+    test_y = {**odds_2021_dict, **odds_2020_dict}
 
     # TODO: initialize model
     model = Model()

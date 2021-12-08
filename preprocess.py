@@ -42,16 +42,20 @@ def preprocess_games(filepath):
         returnArr.append(season_data)
     return season_data
     
-season_data = preprocess_games("archive/train_games.csv")
-for line in season_data:
-    print(line)
+# season_data = preprocess_games("archive/train_games.csv")
+# for line in season_data:
+#     print(line)
 
 def preprocess_odds(filepath):
     odds_data = pandas.read_excel(filepath)
     odds_data = odds_data.replace('pk', 0)
-    #odds_data = convert_to_team_id(odds_data)
+    odds_data = convert_to_team_id(odds_data)
     labels_dict = {}
     for i, g in odds_data.groupby(odds_data.index // 2):
+        date = str(g.iloc[0,0])
+        if len(date) == 3:
+            date = "0" + date
+        #print(date)
         away_team_id = g.iloc[0, 3]
         home_team_id = g.iloc[1, 3]
         away_score = int(g.iloc[0, 8])
@@ -60,6 +64,8 @@ def preprocess_odds(filepath):
         over_under = max(float(g.iloc[0, 9]), float(g.iloc[1, 9]))
         if (over_under < 25 and over_under > 16):
             over_under *= 10
+        # print("GAME: ", i)
+        # print(over_under)
         assert over_under > 100
         label = None
         if (total_score < over_under):
@@ -68,7 +74,7 @@ def preprocess_odds(filepath):
             label = 1
         elif (total_score == over_under):
             label = 0.5
-        labels_dict[(away_team_id, home_team_id, away_score, home_score)] = label
+        labels_dict[(away_team_id, home_team_id, date)] = label
     return labels_dict
 
 def convert_to_team_id(data):
