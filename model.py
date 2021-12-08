@@ -54,6 +54,9 @@ def main():
     
     # TO-DO:  Separate your train and test data into inputs and labels
     train_x = preprocess.preprocess_games("archive/train_games.csv")
+    # print("TEMPORARY -----------------------")
+    # for i in range(10):
+    #     print(train_x[i])
     test_x = preprocess.preprocess_games("archive/test_games.csv")
     odds_2021_dict = preprocess.preprocess_odds("archive/nba odds 2021-22.xlsx")
     odds_2020_dict = preprocess.preprocess_odds("archive/nba odds 2020-21.xlsx")

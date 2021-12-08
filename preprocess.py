@@ -33,13 +33,13 @@ def preprocess_games(filepath):
             years_dict[row.SEASON][row.HOME_TEAM_ID] = home_data #save the team data to average later
             years_dict[row.SEASON][row.VISITOR_TEAM_ID] = away_data #save the team data to average later
             i=1
-    returnArr = []
     for season in years_dict:
         season_data = []
         for game in years_dict[season]:
             if game not in teamIDs:
                 season_data.append(years_dict[season][game])
-        returnArr.append(season_data)
+    # for i in range(10):
+    #     print(season_data[i])
     return season_data
     
 # season_data = preprocess_games("archive/train_games.csv")
