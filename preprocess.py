@@ -2,7 +2,7 @@ import pandas
 import math
 import numpy as np
 
-def preprocess(filepath):
+def preprocess_games(filepath):
     years_dict = {}
     data = pandas.read_csv(filepath)
     data['Date'] =pandas.to_datetime(data.Date)
@@ -22,8 +22,8 @@ def preprocess(filepath):
                 away_data = [0, row.PTS_away,row.FG_PCT_away,row.FT_PCT_away,row.FG3_PCT_away,row.AST_away, row.REB_away]
             if not math.isnan(home_data[0]):
                 years_dict[row.SEASON][row.GAME_ID] = [row.HOME_TEAM_WINS, row.HOME_TEAM_ID, row.VISITOR_TEAM_ID, home_data[1:], away_data[1:]]
-                years_dict[row.SEASON][row.HOME_TEAM_ID] =  home_data #averge stats of season so far
-                years_dict[row.SEASON][row.VISITOR_TEAM_ID] = away_data #averge stats of season so far
+                years_dict[row.SEASON][row.HOME_TEAM_ID] =  home_data #average stats of season so far
+                years_dict[row.SEASON][row.VISITOR_TEAM_ID] = away_data #average stats of season so far
         else: #start the season with the first game data
             home_data = [0,row.PTS_home,row.FG_PCT_home,row.FT_PCT_home,row.FG3_PCT_home,row.AST_home, row.REB_home]
             away_data = [0,row.PTS_away,row.FG_PCT_away,row.FT_PCT_away,row.FG3_PCT_away,row.AST_away, row.REB_away]
@@ -40,9 +40,9 @@ def preprocess(filepath):
         returnArr.append(season_data)
     return season_data
     
-#season_data = preprocess("archive/games.csv")
-# for line in season_data:
-#     print(line)
+season_data = preprocess_games("archive/train_games.csv")
+for line in season_data:
+    print(line)
 
 def preprocess_odds(filepath):
     odds_data = pandas.read_excel(filepath)

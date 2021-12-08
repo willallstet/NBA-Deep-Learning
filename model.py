@@ -46,7 +46,16 @@ def test(model, test_inputs, test_labels):
 def main():
     
     # TO-DO:  Separate your train and test data into inputs and labels
-    years_list = preprocess.preprocess("archive/games.csv")
+    train_x = preprocess.preprocess_games("archive/train_games.csv")
+    test_x = preprocess.preprocess_games("archive/test_games.csv")
+    odds_2021_dict = preprocess.preprocess_odds("archive/nba odds 2021-22.xlsx")
+    odds_2020_dict = preprocess.preprocess_odds("archive/nba odds 2020-21.xlsx")
+    odds_2019_dict = preprocess.preprocess_odds("archive/nba odds 2019-20.xlsx")
+    odds_2018_dict = preprocess.preprocess_odds("archive/nba odds 2018-19.xlsx")
+    odds_2017_dict = preprocess.preprocess_odds("archive/nba odds 2017-18.xlsx")
+    odds_2016_dict = preprocess.preprocess_odds("archive/nba odds 2016-17.xlsx")
+    train_y = odds_2019_dict | odds_2018_dict | odds_2017_dict | odds_2016_dict
+    test_y = odds_2021_dict  | odds_2020_dict
 
     # TODO: initialize model
     model = Model()
