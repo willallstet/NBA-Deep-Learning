@@ -37,8 +37,8 @@ def preprocess_games(filepath):
             teamIDs.add(row.HOME_TEAM_ID)
             teamIDs.add(row.VISITOR_TEAM_ID)
             i=1
+    season_data = []
     for season in years_dict:
-        season_data = []
         for game in years_dict[season]:
             if game not in teamIDs:
                 season_data.append(years_dict[season][game])

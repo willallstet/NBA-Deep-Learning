@@ -16,6 +16,7 @@ class Model(tf.keras.Model):
         self.feed_forward_2 = tf.keras.layers.Dense(2, activation='sigmoid')
 
     def call(self, inputs):
+        # print(inputs.shape)
         whole_sequence_output, final_memory_state, final_carry_state = self.lstm(inputs)
         probs_1 = self.feed_forward_1(whole_sequence_output)
         probs_2 = self.feed_forward_2(probs_1)
@@ -28,29 +29,34 @@ class Model(tf.keras.Model):
         correct_predictions = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
         return tf.reduce_mean(tf.cast(correct_predictions, tf.float32))
 
-def train(model, train_inputs, train_labels):   
+def train(model, train_inputs, train_labels):
     for i in range(0, len(train_inputs)):
-        print("Training Batch: ", i)
+        print("TRAINING GAME #", i)
         game_data = train_inputs[i]
         # print(game_data)
         game_input = np.array(game_data[4] + game_data[5])
-        # if i == 9:
-        #     print(game_data[3])
-        #     print(game_data[2])
-        #     print(game_data[0])
         game_input = np.reshape(game_input, (1, len(game_input), 1))
         game_result = train_labels[(game_data[3], game_data[2], game_data[0])]
         with tf.GradientTape() as tape:
             #print(game_input)
-            results = model(game_input)
-            loss = model.loss(results[0], game_result)
+            results, _ = model(game_input)
+            loss = model.loss(results, game_result)
             #print(loss)
         gradients = tape.gradient(loss, model.trainable_variables)
         model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
 def test(model, test_inputs, test_labels):
-    probs = model.call(test_inputs)
+    probs_list = []
+    for i in range(0, len(test_inputs)):
+        print("TEST GAME #", i)
+        game_data = test_inputs[i]
+        game_input = np.array(game_data[4] + game_data[5])
+        game_input = np.reshape(game_input, (1, len(game_input), 1))
+        probs_list.append(model.call(game_input))
+    print(probs_list)
+    probs = tf.convert_to_tensor(probs_list)
     accuracy = model.accuracy(probs, test_labels)
+    return accuracy
 
 def main():
     
@@ -59,7 +65,9 @@ def main():
     # print("TEMPORARY -----------------------")
     # for i in range(10):
     #     print(train_x[i])
+    print("LENGTH OF TRAIN X: ", len(train_x))
     test_x = preprocess.preprocess_games("archive/test_games.csv")
+    print("LENGTH OF TEST X: ", len(test_x))
     odds_2021_dict = preprocess.preprocess_odds("archive/nba odds 2021-22.xlsx")
     odds_2020_dict = preprocess.preprocess_odds("archive/nba odds 2020-21.xlsx")
     odds_2019_dict = preprocess.preprocess_odds("archive/nba odds 2019-20.xlsx")
@@ -75,6 +83,7 @@ def main():
     # TODO: Set-up the training step
     train(model, train_x, train_y)
 
+    print("FINISHES TRAIN ----------------------------------------")
     acc = test(model, test_x, test_y)
     print("ACCURACY: ", acc)
     
