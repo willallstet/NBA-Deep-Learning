@@ -42,8 +42,6 @@ def preprocess_games(filepath):
         for game in years_dict[season]:
             if game not in teamIDs:
                 season_data.append(years_dict[season][game])
-    for i in range(10):
-        print(season_data[i])
     return season_data
     
 # season_data = preprocess_games("archive/train_games.csv")
@@ -62,6 +60,8 @@ def preprocess_odds(filepath):
         #print(date)
         away_team_id = g.iloc[0, 3]
         home_team_id = g.iloc[1, 3]
+        if (away_team_id == 1610612739) and (home_team_id == 1610612753):
+            print(date)
         away_score = int(g.iloc[0, 8])
         home_score = int(g.iloc[1, 8])
         total_score = away_score + home_score
@@ -84,12 +84,12 @@ def preprocess_odds(filepath):
 def convert_to_team_id(data):
     data = data.replace("Atlanta", 1610612737)
     data = data.replace("Boston", 1610612738)
-    data = data.replace("GoldenState", 1610612739)
+    data = data.replace("Cleveland", 1610612739)
     data = data.replace("NewOrleans", 1610612740)
     data = data.replace("Chicago", 1610612741)
     data = data.replace("Dallas", 1610612742)
     data = data.replace("Denver", 1610612743)
-    data = data.replace("Cleveland", 1610612744)
+    data = data.replace("GoldenState", 1610612744)
     data = data.replace("Houston", 1610612745)
     data = data.replace("LAClippers", 1610612746)
     data = data.replace("LALakers", 1610612747)
@@ -113,3 +113,5 @@ def convert_to_team_id(data):
     data = data.replace("Detroit", 1610612765)
     data = data.replace("Charlotte", 1610612766)
     return data
+
+# preprocess_odds("archive/nba odds 2019-20.xlsx")
