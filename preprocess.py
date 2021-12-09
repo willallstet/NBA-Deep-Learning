@@ -60,7 +60,7 @@ def preprocess_odds(filepath):
         #print(date)
         away_team_id = g.iloc[0, 3]
         home_team_id = g.iloc[1, 3]
-        if (away_team_id == 1610612739) and (home_team_id == 1610612753):
+        if (away_team_id == 1610612752) and (home_team_id == 1610612759):
             print(date)
         away_score = int(g.iloc[0, 8])
         home_score = int(g.iloc[1, 8])
@@ -104,7 +104,7 @@ def convert_to_team_id(data):
     data = data.replace("Phoenix", 1610612756)
     data = data.replace("Portland", 1610612757)
     data = data.replace("Sacramento", 1610612758)
-    data = data.replace("San Antonio", 1610612759)
+    data = data.replace("SanAntonio", 1610612759)
     data = data.replace("OklahomaCity", 1610612760)
     data = data.replace("Toronto", 1610612761)
     data = data.replace("Utah", 1610612762)
@@ -114,4 +114,4 @@ def convert_to_team_id(data):
     data = data.replace("Charlotte", 1610612766)
     return data
 
-# preprocess_odds("archive/nba odds 2019-20.xlsx")
+preprocess_odds("archive/nba odds 2019-20.xlsx")

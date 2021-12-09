@@ -34,7 +34,7 @@ def train(model, train_inputs, train_labels):
         game_data = train_inputs[i]
         # print(game_data)
         game_input = np.array(game_data[4] + game_data[5])
-        if i == 2:
+        if i == 9:
             print(game_data[3])
             print(game_data[2])
             print(game_data[0])
