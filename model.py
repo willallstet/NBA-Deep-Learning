@@ -9,21 +9,20 @@ class Model(tf.keras.Model):
         super(Model, self).__init__()
 
         self.rnn_size = 10
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
 
         self.lstm = tf.keras.layers.LSTM(self.rnn_size, return_sequences=True, return_state=True)
         self.feed_forward_1 = tf.keras.layers.Dense(32, activation='relu')
-        self.feed_forward_2 = tf.keras.layers.Dense(2, activation='softmax')
+        self.feed_forward_2 = tf.keras.layers.Dense(2, activation='sigmoid')
 
     def call(self, inputs):
-        # print(inputs.shape)
         whole_sequence_output, final_memory_state, final_carry_state = self.lstm(inputs)
         probs_1 = self.feed_forward_1(whole_sequence_output)
         probs_2 = self.feed_forward_2(probs_1)
         return probs_2, (final_memory_state, final_carry_state)
 
     def loss(self, probs, labels):
-        return tf.reduce_mean(tf.keras.losses.binary_crossentropy(labels, probs))
+        return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels, probs))
 
     def accuracy(self, logits, labels):
         correct_predictions = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
@@ -34,32 +33,45 @@ def train(model, train_inputs, train_labels):
         print("TRAINING GAME #", i)
         game_data = [train_inputs[i],train_inputs[i+1],train_inputs[i+2]]
         game_input = np.array([game_data[0][4] + game_data[0][5],game_data[1][4] + game_data[1][5],game_data[2][4] + game_data[2][5]])
-        print(game_input.shape)
         game_input = np.reshape(game_input, (1, len(game_input), 12))
         game_result = [train_labels[(game_data[0][3], game_data[0][2], game_data[0][0])],train_labels[(game_data[1][3], game_data[1][2], game_data[1][0])],train_labels[(game_data[2][3], game_data[2][2], game_data[2][0])]]
         with tf.GradientTape() as tape:
-            #print(game_input)
             results, _ = model(game_input)
             results = tf.squeeze(results)
-            results = tf.math.argmax(results, axis=1)
-            print(results)
-            loss = model.loss(results, game_result)
-            #print(loss)
+            loss = model.loss(results, tf.one_hot(game_result,2))
+        if i == 0:
+            print(loss)
+        if i == len(train_inputs)-1:
+            print(loss)
         gradients = tape.gradient(loss, model.trainable_variables)
         model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
 def test(model, test_inputs, test_labels):
-    probs_list = []
-    for i in range(0, len(test_inputs)):
+    correct_total = 0
+    total = 0
+    for i in range(0, len(test_inputs),3):
         print("TEST GAME #", i)
-        game_data = test_inputs[i]
-        game_input = np.array(game_data[4] + game_data[5])
-        game_input = np.reshape(game_input, (1, len(game_input), 1))
-        probs_list.append(model.call(game_input))
-    print(probs_list)
-    probs = tf.convert_to_tensor(probs_list)
-    accuracy = model.accuracy(probs, test_labels)
-    return accuracy
+        if((i+2)<(len(test_inputs)-1)):
+            total+=3
+            game_data = [test_inputs[i],test_inputs[i+1],test_inputs[i+2]]
+            game_input = game_input = np.array([game_data[0][4] + game_data[0][5],game_data[1][4] + game_data[1][5],game_data[2][4] + game_data[2][5]])
+            game_input = np.reshape(game_input, (1, len(game_input), 12))
+            test_result = [test_labels[(game_data[0][3], game_data[0][2], game_data[0][0])],test_labels[(game_data[1][3], game_data[1][2], game_data[1][0])],test_labels[(game_data[2][3], game_data[2][2], game_data[2][0])]]
+            results, _ = model(game_input)
+            #print(results)
+            #score = tf.reduce_sum(results)
+            #if score < 0.5:
+            #    score = 0
+            #elif score > 0.5:
+            #    score = 18
+            results=tf.squeeze(results)
+            if tf.math.argmax(results[0]) == test_result[0]:
+                correct_total += 1
+            if tf.math.argmax(results[1]) == test_result[1]:
+                correct_total += 1
+            if tf.math.argmax(results[2]) == test_result[2]:
+                correct_total += 1
+    return correct_total / total
 
 def main():
     
@@ -68,9 +80,7 @@ def main():
     # print("TEMPORARY -----------------------")
     # for i in range(10):
     #     print(train_x[i])
-    print("LENGTH OF TRAIN X: ", len(train_x))
     test_x = preprocess.preprocess_games("archive/test_games.csv")
-    print("LENGTH OF TEST X: ", len(test_x))
     odds_2021_dict = preprocess.preprocess_odds("archive/nba odds 2021-22.xlsx")
     odds_2020_dict = preprocess.preprocess_odds("archive/nba odds 2020-21.xlsx")
     odds_2019_dict = preprocess.preprocess_odds("archive/nba odds 2019-20.xlsx")

@@ -77,7 +77,7 @@ def preprocess_odds(filepath):
         elif (total_score > over_under):
             label = 1
         elif (total_score == over_under):
-            label = 0.5
+            label = 1
         labels_dict[(away_team_id, home_team_id, date)] = label
     return labels_dict
 
