@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.keras import Model
 import preprocess
+import matplotlib.pyplot as plt
 
 class Model(tf.keras.Model):
     def __init__(self):
@@ -9,10 +10,10 @@ class Model(tf.keras.Model):
         super(Model, self).__init__()
 
         self.rnn_size = 10
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
 
         self.lstm = tf.keras.layers.LSTM(self.rnn_size, return_sequences=True, return_state=True)
-        self.feed_forward_1 = tf.keras.layers.Dense(32, activation='relu')
+        self.feed_forward_1 = tf.keras.layers.Dense(16, activation='relu')
         self.feed_forward_2 = tf.keras.layers.Dense(2, activation='sigmoid')
 
     def call(self, inputs):
@@ -29,6 +30,7 @@ class Model(tf.keras.Model):
         return tf.reduce_mean(tf.cast(correct_predictions, tf.float32))
 
 def train(model, train_inputs, train_labels):
+    loss_list = []
     for i in range(0, len(train_inputs),3):
         print("TRAINING GAME #", i)
         game_data = [train_inputs[i],train_inputs[i+1],train_inputs[i+2]]
@@ -39,12 +41,15 @@ def train(model, train_inputs, train_labels):
             results, _ = model(game_input)
             results = tf.squeeze(results)
             loss = model.loss(results, tf.one_hot(game_result,2))
+            loss_list.append(loss)
         if i == 0:
             print(loss)
         if i == len(train_inputs)-1:
             print(loss)
         gradients = tape.gradient(loss, model.trainable_variables)
         model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+    plt.plot(range(int(len(train_inputs) / 3)), loss_list)
+    plt.show()
 
 def test(model, test_inputs, test_labels):
     correct_total = 0
