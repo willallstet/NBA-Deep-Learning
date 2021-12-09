@@ -13,7 +13,7 @@ class Model(tf.keras.Model):
 
         self.lstm = tf.keras.layers.LSTM(self.rnn_size, return_sequences=True, return_state=True)
         self.feed_forward_1 = tf.keras.layers.Dense(32, activation='relu')
-        self.feed_forward_2 = tf.keras.layers.Dense(2, activation='sigmoid')
+        self.feed_forward_2 = tf.keras.layers.Dense(2, activation='softmax')
 
     def call(self, inputs):
         # print(inputs.shape)
@@ -30,16 +30,19 @@ class Model(tf.keras.Model):
         return tf.reduce_mean(tf.cast(correct_predictions, tf.float32))
 
 def train(model, train_inputs, train_labels):
-    for i in range(0, len(train_inputs)):
+    for i in range(0, len(train_inputs),3):
         print("TRAINING GAME #", i)
-        game_data = train_inputs[i]
-        # print(game_data)
-        game_input = np.array(game_data[4] + game_data[5])
-        game_input = np.reshape(game_input, (1, len(game_input), 1))
-        game_result = train_labels[(game_data[3], game_data[2], game_data[0])]
+        game_data = [train_inputs[i],train_inputs[i+1],train_inputs[i+2]]
+        game_input = np.array([game_data[0][4] + game_data[0][5],game_data[1][4] + game_data[1][5],game_data[2][4] + game_data[2][5]])
+        print(game_input.shape)
+        game_input = np.reshape(game_input, (1, len(game_input), 12))
+        game_result = [train_labels[(game_data[0][3], game_data[0][2], game_data[0][0])],train_labels[(game_data[1][3], game_data[1][2], game_data[1][0])],train_labels[(game_data[2][3], game_data[2][2], game_data[2][0])]]
         with tf.GradientTape() as tape:
             #print(game_input)
             results, _ = model(game_input)
+            results = tf.squeeze(results)
+            results = tf.math.argmax(results, axis=1)
+            print(results)
             loss = model.loss(results, game_result)
             #print(loss)
         gradients = tape.gradient(loss, model.trainable_variables)
