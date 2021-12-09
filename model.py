@@ -34,10 +34,10 @@ def train(model, train_inputs, train_labels):
         game_data = train_inputs[i]
         # print(game_data)
         game_input = np.array(game_data[4] + game_data[5])
-        if i == 9:
-            print(game_data[3])
-            print(game_data[2])
-            print(game_data[0])
+        # if i == 9:
+        #     print(game_data[3])
+        #     print(game_data[2])
+        #     print(game_data[0])
         game_input = np.reshape(game_input, (1, len(game_input), 1))
         game_result = train_labels[(game_data[3], game_data[2], game_data[0])]
         with tf.GradientTape() as tape:

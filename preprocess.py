@@ -60,8 +60,8 @@ def preprocess_odds(filepath):
         #print(date)
         away_team_id = g.iloc[0, 3]
         home_team_id = g.iloc[1, 3]
-        if (away_team_id == 1610612752) and (home_team_id == 1610612759):
-            print(date)
+        # if (away_team_id == 1610612752) and (home_team_id == 1610612759):
+        #     print(date)
         away_score = int(g.iloc[0, 8])
         home_score = int(g.iloc[1, 8])
         total_score = away_score + home_score
