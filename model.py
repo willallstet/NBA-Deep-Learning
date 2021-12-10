@@ -9,11 +9,11 @@ class Model(tf.keras.Model):
 
         super(Model, self).__init__()
 
-        self.rnn_size = 10
+        self.rnn_size = 32
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
 
         self.lstm = tf.keras.layers.LSTM(self.rnn_size, return_sequences=True, return_state=True)
-        self.feed_forward_1 = tf.keras.layers.Dense(16, activation='relu')
+        self.feed_forward_1 = tf.keras.layers.Dense(32, activation='relu')
         self.feed_forward_2 = tf.keras.layers.Dense(2, activation='sigmoid')
 
     def call(self, inputs):
@@ -25,9 +25,9 @@ class Model(tf.keras.Model):
     def loss(self, probs, labels):
         return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels, probs))
 
-    def accuracy(self, logits, labels):
-        correct_predictions = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
-        return tf.reduce_mean(tf.cast(correct_predictions, tf.float32))
+    # def accuracy(self, logits, labels):
+    #     correct_predictions = tf.equal(tf.argmax(logits, 1), tf.argmax(labels, 1))
+    #     return tf.reduce_mean(tf.cast(correct_predictions, tf.float32))
 
 def train(model, train_inputs, train_labels):
     loss_list = []
@@ -42,10 +42,6 @@ def train(model, train_inputs, train_labels):
             results = tf.squeeze(results)
             loss = model.loss(results, tf.one_hot(game_result,2))
             loss_list.append(loss)
-        if i == 0:
-            print(loss)
-        if i == len(train_inputs)-1:
-            print(loss)
         gradients = tape.gradient(loss, model.trainable_variables)
         model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
     plt.plot(range(int(len(train_inputs) / 3)), loss_list)
@@ -68,7 +64,7 @@ def test(model, test_inputs, test_labels):
             #if score < 0.5:
             #    score = 0
             #elif score > 0.5:
-            #    score = 18
+            #    score = 1
             results=tf.squeeze(results)
             if tf.math.argmax(results[0]) == test_result[0]:
                 correct_total += 1
